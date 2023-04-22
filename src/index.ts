@@ -3,9 +3,9 @@ import * as DotEnv from "dotenv";
 import path from "path";
 import fs from "fs";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Colors, ButtonInteraction } from 'discord.js'
+DotEnv.config({path: "./.env"});
 
 const client = new Discord.Client({ intents: [], presence: { status: "online", afk: false, activities: [{ name: "hey sisters", type: Discord.ActivityType.Listening }] }});
-DotEnv.config({ path: "./.env" });
 
 let commands = new Discord.Collection();
 const commandsPath = path.join(__dirname, 'commands');
