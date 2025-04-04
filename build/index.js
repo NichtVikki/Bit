@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -67,27 +77,41 @@ client.on("interactionCreate", (interaction) => __awaiter(void 0, void 0, void 0
             yield command.execute(interaction, client);
         }
         catch (error) {
-            yield interaction.reply({
-                embeds: [new discord_js_1.EmbedBuilder().setTitle("Error").setDescription("An error occurred whilst executing this command! You can report this error, but we advise you to try the command later first before reporting.").setColor(discord_js_1.Colors.Red).setTimestamp().setFooter({ text: "Wolfie" })],
-                components: [new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder().setStyle(discord_js_1.ButtonStyle.Primary).setLabel("Report this error").setCustomId("report_error").setEmoji("📝"))],
-                ephemeral: true,
-                fetchReply: true
-            }).catch(() => __awaiter(void 0, void 0, void 0, function* () {
-                console.error(error);
-                yield interaction.editReply({
-                    embeds: [new discord_js_1.EmbedBuilder().setTitle("Error").setDescription("An error occurred whilst executing this command! The developers were notified automatically.").setColor(discord_js_1.Colors.Red).setTimestamp().setFooter({ text: "Wulfie" })]
+            const didAlreadyReply = interaction.replied || interaction.deferred;
+            let reply;
+            if (didAlreadyReply) {
+                reply = yield interaction.editReply({
+                    embeds: [new discord_js_1.EmbedBuilder()
+                            .setTitle("Error")
+                            .setDescription("An error occurred whilst executing this command! You can report this error, but we advise you to try the command later first before reporting.")
+                            .setColor(discord_js_1.Colors.Red).setTimestamp().setFooter({ text: "Bit" })], // @ts-ignore
+                    components: [new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
+                            .setStyle(1)
+                            .setLabel("Report this error").setCustomId("report_error").setEmoji("📝"))],
+                    ephemeral: true,
+                    fetchReply: true
                 });
-            })).then(reply => {
-                // listen to the button click
-                const filter = (buttonInteraction) => buttonInteraction.customId === "report_error" && buttonInteraction.user.id === interaction.user.id;
-                // @ts-ignore
-                const collector = reply.createMessageComponentCollector({ filter, time: 60000 });
-                collector.on('collect', (buttonInteraction) => __awaiter(void 0, void 0, void 0, function* () {
-                    console.error(error);
-                    // @ts-ignore
-                    yield buttonInteraction.reply({ content: "The developers have been notified of this error.", ephemeral: true });
-                }));
-            });
+            }
+            else {
+                reply = yield interaction.reply({
+                    embeds: [new discord_js_1.EmbedBuilder()
+                            .setTitle("Error")
+                            .setDescription("An error occurred whilst executing this command! You can report this error, but we advise you to try the command later first before reporting.")
+                            .setColor(discord_js_1.Colors.Red).setTimestamp().setFooter({ text: "Bit" })], // @ts-ignore
+                    components: [new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
+                            .setStyle(1)
+                            .setLabel("Report this error").setCustomId("report_error").setEmoji("📝"))],
+                    ephemeral: true,
+                    fetchReply: true
+                });
+            }
+            const filter = (i) => i.customId === "report_error" && i.user.id === interaction.user.id;
+            const collector = reply.createMessageComponentCollector({ filter, time: 60000 });
+            collector.on('collect', (button) => __awaiter(void 0, void 0, void 0, function* () {
+                console.error(error);
+                yield button.deferUpdate();
+                yield interaction.editReply({ content: "The developers have been notified of this error.", components: [], embeds: [] });
+            }));
         }
     }
 }));

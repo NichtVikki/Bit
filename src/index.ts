@@ -2,7 +2,15 @@ import * as Discord from "discord.js";
 import * as DotEnv from "dotenv";
 import path from "path";
 import fs from "fs";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Colors, ButtonInteraction } from 'discord.js'
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    EmbedBuilder,
+    Colors,
+    ButtonInteraction,
+    MessageComponentInteraction, MessageFlagsBitField
+} from 'discord.js'
 DotEnv.config({path: "./.env"});
 
 const client = new Discord.Client({ intents: [], presence: { status: "online", afk: false, activities: [{ name: "hey sisters", type: Discord.ActivityType.Listening }] }});
@@ -33,26 +41,44 @@ client.on("interactionCreate", async interaction => {
             // @ts-ignore
             await command.execute(interaction, client);
         } catch (error) {
-            await interaction.reply({
-                embeds: [new EmbedBuilder().setTitle("Error").setDescription("An error occurred whilst executing this command! You can report this error, but we advise you to try the command later first before reporting.").setColor(Colors.Red).setTimestamp().setFooter({ text: "Wolfie"})], // @ts-ignore
-                components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setStyle(ButtonStyle.Primary).setLabel("Report this error").setCustomId("report_error").setEmoji("📝"))],
-                ephemeral: true,
-                fetchReply: true
-            }).catch(async () => {
-                console.error(error);
-                await interaction.editReply({
-                    embeds: [new EmbedBuilder().setTitle("Error").setDescription("An error occurred whilst executing this command! The developers were notified automatically.").setColor(Colors.Red).setTimestamp().setFooter({ text: "Wulfie"})]
+            const didAlreadyReply = interaction.replied || interaction.deferred;
+
+            let reply;
+            if (didAlreadyReply) {
+                reply = await interaction.editReply({
+                    embeds: [new EmbedBuilder()
+                        .setTitle("Error")
+                        .setDescription("An error occurred whilst executing this command! You can report this error, but we advise you to try the command later first before reporting.")
+                        .setColor(Colors.Red).setTimestamp().setFooter({ text: "Bit" })], // @ts-ignore
+                    components: [new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setStyle(1)
+                            .setLabel("Report this error").setCustomId("report_error").setEmoji("📝"))],
+                    ephemeral: true,
+                    fetchReply: true
                 })
-            }).then(reply => {
-                // listen to the button click
-                const filter = (buttonInteraction : ButtonInteraction) => buttonInteraction.customId === "report_error" && buttonInteraction.user.id === interaction.user.id;
-                // @ts-ignore
-                const collector = reply.createMessageComponentCollector({ filter, time: 60000 });
-                collector.on('collect', async (buttonInteraction : ButtonInteraction) => {
-                    console.error(error)
-                    // @ts-ignore
-                    await buttonInteraction.reply({ content: "The developers have been notified of this error.", ephemeral: true });
+            } else {
+                reply = await interaction.reply({
+                    embeds: [new EmbedBuilder()
+                        .setTitle("Error")
+                        .setDescription("An error occurred whilst executing this command! You can report this error, but we advise you to try the command later first before reporting.")
+                        .setColor(Colors.Red).setTimestamp().setFooter({ text: "Bit" })], // @ts-ignore
+                    components: [new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setStyle(1)
+                            .setLabel("Report this error").setCustomId("report_error").setEmoji("📝"))],
+                    ephemeral: true,
+                    fetchReply: true
                 })
+            }
+
+            const filter = (i: MessageComponentInteraction) => i.customId === "report_error" && i.user.id === interaction.user.id;
+            const collector = reply.createMessageComponentCollector({ filter, time: 60000 });
+
+            collector.on('collect', async (button: ButtonInteraction) => {
+                console.error(error)
+                await button.deferUpdate();
+                await interaction.editReply({ content: "The developers have been notified of this error.", components: [], embeds: [] });
             })
         }
     }

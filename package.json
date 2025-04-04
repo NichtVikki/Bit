@@ -5,21 +5,21 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node build/index.js",
+    "start": "tsc && node build/index.js",
     "dev": "concurrently \"tsc -w\" \"nodemon build/index.js\"",
-    "deploy": "concurrently \"tsc -w\" \"node build/deploy-commands.js\""
+    "deploy": "tsc && node build/deploy-commands.js"
   },
   "author": "VikkiVuk",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^7.5.0",
-    "nodemon": "^2.0.20",
-    "typescript": "^4.8.4"
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.8.2"
   },
   "dependencies": {
-    "axios": "^1.1.3",
+    "axios": "^1.8.4",
     "discord-nsfw": "^1.3.0",
-    "discord.js": "^14.7.1",
-    "dotenv": "^16.0.3"
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7"
   }
 }

@@ -1,11 +1,18 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import {CommandInteraction, EmbedBuilder, Colors} from "discord.js";
+import {
+    EmbedBuilder,
+    Colors,
+    TextChannel,
+    CommandInteractionOptionResolver,
+    ChatInputCommandInteraction
+} from "discord.js";
 import axios from "axios";
 
 export = {
     data: new SlashCommandBuilder()
         .setName('porn')
         .setDescription('pick any porn youd like')
+        .setIntegrationTypes([0,1])
         .addStringOption(option => option.setName("type").setDescription("pick a type").setRequired(true).addChoices(
             {name: "4k", value: "4k"},
             {name: "Anal", value: "anal"},
@@ -28,17 +35,51 @@ export = {
             {name: "Food", value: "food"},
         )),
 
-    async execute(interaction: CommandInteraction) {
+    async execute(interaction: ChatInputCommandInteraction) {
         await interaction.deferReply()
+        if (!interaction.guild) {
+            const embed = new EmbedBuilder()
+                .setTitle("This command can only be used in a server.")
+                .setDescription("You can only use this command in a server.")
+                .setColor(Colors.Red)
+                .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." })
+            await interaction.editReply({ embeds: [embed] });
+            return;
+        }
+
+        const channel = await interaction.client.channels.fetch(interaction.channelId)
+
+        let isChannelNSFW = false;
+        if (!channel || !(channel instanceof TextChannel)) {
+            isChannelNSFW = false;
+        } else {
+            isChannelNSFW = channel.nsfw;
+        }
+
+        const type = (interaction.options as CommandInteractionOptionResolver).getString("type")!
+
+        if (type === "food") {
+            isChannelNSFW = true;
+        }
+
+        if (!isChannelNSFW) {
+            const embed = new EmbedBuilder()
+                .setTitle("This channel is not NSFW")
+                .setDescription("You can only use this command in NSFW channels.")
+                .setColor(Colors.Red)
+                .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." })
+            await interaction.editReply({ embeds: [embed] });
+            return;
+        }
 
         // @ts-ignore
         let { data } = await axios.get(`https://nekobot.xyz/api/image?type=${interaction.options.getString("type")}`)
 
         const image = data.message
         const embed = new EmbedBuilder() // @ts-ignore
-            .setTitle(interaction.options.getString("type"))
+            .setTitle(type)
             .setColor(Colors.Red)
-            .setFooter({ text: "Thanks to pjunior this exists." })
+            .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." })
             .setImage(image);
 
         await interaction.editReply({ embeds: [embed] });

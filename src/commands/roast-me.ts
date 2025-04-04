@@ -4,6 +4,7 @@ import { CommandInteraction, EmbedBuilder } from "discord.js";
 export = {
     data: new SlashCommandBuilder()
         .setName('roast-me')
+        .setIntegrationTypes([0,1])
         .setDescription('Get roasted by the bot!'),
 
     async execute(interaction: CommandInteraction) {
