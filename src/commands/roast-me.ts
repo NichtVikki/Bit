@@ -5,6 +5,7 @@ export = {
     data: new SlashCommandBuilder()
         .setName('roast-me')
         .setIntegrationTypes([0,1])
+        .setContexts([0,1,2])
         .setDescription('Get roasted by the bot!'),
 
     async execute(interaction: CommandInteraction) {

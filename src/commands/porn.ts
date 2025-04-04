@@ -13,6 +13,7 @@ export = {
         .setName('porn')
         .setDescription('pick any porn youd like')
         .setIntegrationTypes([0,1])
+        .setContexts([0,1,2])
         .addStringOption(option => option.setName("type").setDescription("pick a type").setRequired(true).addChoices(
             {name: "4k", value: "4k"},
             {name: "Anal", value: "anal"},
@@ -37,6 +38,22 @@ export = {
 
     async execute(interaction: ChatInputCommandInteraction) {
         await interaction.deferReply()
+        const type = (interaction.options as CommandInteractionOptionResolver).getString("type")!
+
+        if (type === "food") {
+            let { data } = await axios.get(`https://nekobot.xyz/api/image?type=${type}`)
+
+            const image = data.message
+            const embed = new EmbedBuilder() // @ts-ignore
+                .setTitle(type)
+                .setColor(Colors.Red)
+                .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." })
+                .setImage(image);
+
+            await interaction.editReply({ embeds: [embed] });
+            return
+        }
+
         if (!interaction.guild) {
             const embed = new EmbedBuilder()
                 .setTitle("This command can only be used in a server.")
@@ -55,8 +72,6 @@ export = {
         } else {
             isChannelNSFW = channel.nsfw;
         }
-
-        const type = (interaction.options as CommandInteractionOptionResolver).getString("type")!
 
         if (type === "food") {
             isChannelNSFW = true;

@@ -13,6 +13,7 @@ module.exports = {
     data: new builders_1.SlashCommandBuilder()
         .setName('roast-me')
         .setIntegrationTypes([0, 1])
+        .setContexts([0, 1, 2])
         .setDescription('Get roasted by the bot!'),
     execute(interaction) {
         return __awaiter(this, void 0, void 0, function* () {
