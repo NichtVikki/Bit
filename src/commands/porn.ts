@@ -54,16 +54,6 @@ export = {
             return
         }
 
-        if (!interaction.guild) {
-            const embed = new EmbedBuilder()
-                .setTitle("This command can only be used in a server.")
-                .setDescription("You can only use this command in a server.")
-                .setColor(Colors.Red)
-                .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." })
-            await interaction.editReply({ embeds: [embed] });
-            return;
-        }
-
         const channel = await interaction.client.channels.fetch(interaction.channelId)
 
         let isChannelNSFW = false;
@@ -77,15 +67,15 @@ export = {
             isChannelNSFW = true;
         }
 
-        if (!isChannelNSFW) {
-            const embed = new EmbedBuilder()
-                .setTitle("This channel is not NSFW")
-                .setDescription("You can only use this command in NSFW channels.")
-                .setColor(Colors.Red)
-                .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." })
-            await interaction.editReply({ embeds: [embed] });
-            return;
-        }
+        // if (!isChannelNSFW) {
+        //     const embed = new EmbedBuilder()
+        //         .setTitle("This channel is not NSFW")
+        //         .setDescription("You can only use this command in NSFW channels.")
+        //         .setColor(Colors.Red)
+        //         .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." })
+        //     await interaction.editReply({ embeds: [embed] });
+        //     return;
+        // }
 
         // @ts-ignore
         let { data } = await axios.get(`https://nekobot.xyz/api/image?type=${interaction.options.getString("type")}`)

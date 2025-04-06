@@ -36,15 +36,6 @@ module.exports = {
                 yield interaction.editReply({ embeds: [embed] });
                 return;
             }
-            if (!interaction.guild) {
-                const embed = new discord_js_1.EmbedBuilder()
-                    .setTitle("This command can only be used in a server.")
-                    .setDescription("You can only use this command in a server.")
-                    .setColor(discord_js_1.Colors.Red)
-                    .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." });
-                yield interaction.editReply({ embeds: [embed] });
-                return;
-            }
             const channel = yield interaction.client.channels.fetch(interaction.channelId);
             let isChannelNSFW = false;
             if (!channel || !(channel instanceof discord_js_1.TextChannel)) {
@@ -56,15 +47,15 @@ module.exports = {
             if (type === "food") {
                 isChannelNSFW = true;
             }
-            if (!isChannelNSFW) {
-                const embed = new discord_js_1.EmbedBuilder()
-                    .setTitle("This channel is not NSFW")
-                    .setDescription("You can only use this command in NSFW channels.")
-                    .setColor(discord_js_1.Colors.Red)
-                    .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." });
-                yield interaction.editReply({ embeds: [embed] });
-                return;
-            }
+            // if (!isChannelNSFW) {
+            //     const embed = new EmbedBuilder()
+            //         .setTitle("This channel is not NSFW")
+            //         .setDescription("You can only use this command in NSFW channels.")
+            //         .setColor(Colors.Red)
+            //         .setFooter({ text: "Thinking of X Master Woo. Just woo. Just woo." })
+            //     await interaction.editReply({ embeds: [embed] });
+            //     return;
+            // }
             // @ts-ignore
             let { data } = yield axios_1.default.get(`https://nekobot.xyz/api/image?type=${interaction.options.getString("type")}`);
             const image = data.message;
